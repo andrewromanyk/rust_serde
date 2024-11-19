@@ -1,15 +1,15 @@
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use serde::{Deserializer, Serializer};
+use serde_json;
+use serde_yaml::to_string as to_yaml;
 use std::error::Error;
 use std::fs::File;
 use std::time::Duration;
-use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
-use serde_json;
+use toml;
+use toml::to_string as to_toml;
 use url::Url;
 use uuid::Uuid;
-use toml;
-use serde_yaml::to_string as to_yaml;
-use toml::{to_string as to_toml};
-use serde::{ Serializer, Deserializer};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct User {
@@ -53,7 +53,7 @@ struct Gift {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Debug{
+struct Debug {
     #[serde(with = "humantime_serde")]
     duration: Duration,
     at: DateTime<Utc>, //data
@@ -86,7 +86,7 @@ struct Event {
     date: String,
 }
 
-fn serialize_date<S:Serializer>(date: &str, serializer: S) -> Result<S::Ok, S::Error> {
+fn serialize_date<S: Serializer>(date: &str, serializer: S) -> Result<S::Ok, S::Error> {
     serializer.serialize_str(&format!("Date: {}", date))
 }
 
@@ -97,8 +97,8 @@ fn deserialize_date<'a, D: Deserializer<'a>>(deserializer: D) -> Result<String, 
 
 #[cfg(test)]
 mod test {
-    use std::str::FromStr;
     use super::*;
+    use std::str::FromStr;
 
     #[test]
     fn test_1() {
@@ -106,13 +106,18 @@ mod test {
         let request: Request = serde_json::from_reader(file).unwrap();
 
         assert_eq!(request.request_type, RequestType::Success);
-        assert_eq!(request.stream.user_id, Uuid::from_str("8d234120-0bda-49b2-b7e0-fbd3912f6cbf").unwrap());
-        assert_eq!(request.gifts[0],
-                   Gift {
-                  id: 1,
-                  price: 2,
-                  description: "Gift 1".to_string()
-        })
+        assert_eq!(
+            request.stream.user_id,
+            Uuid::from_str("8d234120-0bda-49b2-b7e0-fbd3912f6cbf").unwrap()
+        );
+        assert_eq!(
+            request.gifts[0],
+            Gift {
+                id: 1,
+                price: 2,
+                description: "Gift 1".to_string()
+            }
+        )
     }
 }
 
@@ -139,12 +144,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let event = Event {
         name: "Event 1".to_string(),
-        date: "2020-01-01".to_string()
+        date: "2020-01-01".to_string(),
     };
 
     let json = serde_json::to_string(&event).unwrap();
     println!("{}", json);
-
 
     Ok(())
 }
